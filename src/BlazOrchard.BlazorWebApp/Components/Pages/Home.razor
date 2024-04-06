@@ -1,0 +1,26 @@
+﻿@page "/"
+@using OrchardCore.ContentManagement.Models
+@attribute [StreamRendering]
+
+@if (_contentItem is null)
+{
+    <p><em>Loading...</em></p>
+    return;
+}
+
+<PageTitle>@_contentItem.DisplayText - @Site.SiteName</PageTitle>
+
+@_markup
+
+@code {
+    private ContentItem? _contentItem;
+    private MarkupString? _markup;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        var id = await HandleManager.GetContentItemIdAsync("alias:home");
+        _contentItem = await ContentManager.GetAsync(id, VersionOptions.Published);
+        var bodyAspect = await ContentManager.PopulateAspectAsync<BodyAspect>(_contentItem);
+        _markup = (MarkupString)bodyAspect.Body.ToString()!;
+    }
+}
